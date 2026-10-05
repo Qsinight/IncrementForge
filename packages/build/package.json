@@ -1,0 +1,36 @@
+{
+  "name": "@iforge/build",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "单文件打包：打包前校验、产物指纹、HTML 模板与构建管线（TECH_DESIGN 11）",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./node": {
+      "types": "./src/node.ts",
+      "default": "./src/node.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "pack": "node --no-warnings scripts/iforge-pack.mjs"
+  },
+  "dependencies": {
+    "@iforge/model": "workspace:*",
+    "@iforge/num": "workspace:*",
+    "@iforge/persist": "workspace:*",
+    "@iforge/runtime": "workspace:*",
+    "@iforge/ui-kit": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

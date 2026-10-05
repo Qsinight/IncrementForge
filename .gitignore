@@ -3,8 +3,11 @@ node_modules/
 .pnpm-store/
 
 # 构建产物
+# 注意：`build/` 必须锚定到仓库根（写成 `/build/`）。不加前导斜杠时该模式会匹配
+# 任意层级的同名目录，连源码包 packages/build/ 一起被忽略，导致 CI 缺少该包、
+# vite 构建报 `Could not load packages/build/src/index.ts`。
 dist/
-build/
+/build/
 *.tsbuildinfo
 
 # 测试与工具缓存
