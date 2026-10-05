@@ -1,0 +1,36 @@
+{
+  "name": "@iforge/runtime-shell",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "预览沙箱宿主页：游戏视图 + postMessage 桥（TECH_DESIGN 9.1/9.2/9.3、8.10/8.11）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@iforge/i18n": "workspace:*",
+    "@iforge/model": "workspace:*",
+    "@iforge/num": "workspace:*",
+    "@iforge/runtime": "workspace:*",
+    "@iforge/ui-kit": "workspace:*",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.4.0",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.3.5",
+    "vitest": "^3.0.5"
+  }
+}

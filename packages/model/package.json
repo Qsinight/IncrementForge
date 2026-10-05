@@ -1,0 +1,26 @@
+{
+  "name": "@iforge/model",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "数据模型：Zod Schema、默认工厂、ID/排序、校验与迁移（TECH_DESIGN 6）",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@iforge/expr": "workspace:*",
+    "@iforge/num": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

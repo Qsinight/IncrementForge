@@ -1,0 +1,921 @@
+/**
+ * 编辑器样式：令牌 + 布局（TECH_DESIGN 7.1 四区布局、7.8 主题令牌、7.1 可访问性基线）。
+ *
+ * 设计原则：
+ * - **颜色只来自令牌**（`--iforge-*`），主题切换只改 `<html>` 上的变量，因此换主题不需要重排版；
+ * - **焦点环用 `--iforge-focus`**（7.1 ⑤：不得被自定义主题抹除），所有可聚焦元素统一走
+ *   `:focus-visible`，避免鼠标点击时出现焦点框；
+ * - 不引第三方 CSS 框架：编辑器 UI 的元素数量可控，手写样式比引入一套设计系统更容易与令牌对齐。
+ */
+
+:root {
+  --iforge-bg: #14161a;
+  --iforge-surface: #1c1f25;
+  --iforge-text: #e8eaed;
+  --iforge-accent: #4c8dff;
+  --iforge-danger: #ff5c5c;
+  --iforge-focus: #7fb0ff;
+  --iforge-muted: #9aa3b2;
+  --iforge-border: #2c313b;
+  --iforge-ok: #4cc38a;
+  --iforge-warning: #e5a13a;
+  --iforge-card: #21252d;
+  --iforge-radius: 6px;
+  --iforge-gap: 8px;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--iforge-bg);
+  color: var(--iforge-text);
+  font:
+    14px/1.5 system-ui,
+    -apple-system,
+    'Segoe UI',
+    'Microsoft YaHei',
+    sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--iforge-focus);
+  outline-offset: 1px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ---- 顶部标题栏（7.1）---- */
+.title-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--iforge-surface);
+  border-bottom: 1px solid var(--iforge-border);
+}
+
+.title-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+}
+
+.title-bar-title {
+  font-weight: 600;
+}
+
+.title-bar-project {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  color: var(--iforge-muted);
+}
+
+.dirty-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--iforge-warning);
+}
+
+.title-bar-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ---- 主体三栏（7.1）---- */
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.side-nav {
+  width: 132px;
+  border-right: 1px solid var(--iforge-border);
+  padding: 8px;
+  overflow: auto;
+}
+
+.side-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.side-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--iforge-radius);
+  color: var(--iforge-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.side-nav-item.active {
+  background: var(--iforge-card);
+  border-color: var(--iforge-accent);
+}
+
+.side-nav-count {
+  margin-left: auto;
+  color: var(--iforge-muted);
+  font-size: 12px;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+/* ---- 工作区：左列表 + 右表单（7.6）---- */
+.workspace {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.entry-list {
+  width: 260px;
+  border-right: 1px solid var(--iforge-border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.entry-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid var(--iforge-border);
+}
+
+.entry-list-title {
+  font-weight: 600;
+}
+
+.entry-list-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  flex: 1;
+}
+
+.entry-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--iforge-border);
+  cursor: pointer;
+}
+
+.entry-row.active {
+  background: var(--iforge-card);
+}
+
+.entry-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.entry-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry-row-desc {
+  color: var(--iforge-muted);
+  font-size: 12px;
+}
+
+.entry-row-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.workspace-form {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  padding: 12px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 720px;
+}
+
+.form-section {
+  border-top: 1px solid var(--iforge-border);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-section h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.form-section h4.sub {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--iforge-muted);
+}
+
+.row-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px dashed var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 8px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+/* ---- 控件（7.6 通用控件）---- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  color: var(--iforge-muted);
+  font-size: 12px;
+}
+
+.field-hint {
+  color: var(--iforge-muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+.field-error {
+  color: var(--iforge-danger);
+  font-size: 12px;
+  margin: 0;
+}
+
+.input {
+  background: var(--iforge-bg);
+  color: var(--iforge-text);
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 5px 8px;
+  font: inherit;
+  width: 100%;
+}
+
+.input.compact {
+  width: auto;
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--iforge-danger);
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.readonly {
+  display: block;
+  color: var(--iforge-muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--iforge-card);
+  color: var(--iforge-text);
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 4px 10px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--iforge-accent);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  border-color: var(--iforge-accent);
+}
+
+.btn.danger {
+  border-color: var(--iforge-danger);
+  color: var(--iforge-danger);
+}
+
+.btn.active {
+  background: var(--iforge-accent);
+  color: var(--iforge-bg);
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--iforge-radius);
+  color: var(--iforge-text);
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.icon-btn:hover:not(:disabled) {
+  border-color: var(--iforge-border);
+}
+
+.icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.icon-btn.danger:hover {
+  border-color: var(--iforge-danger);
+  color: var(--iforge-danger);
+}
+
+.toggle {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--iforge-accent);
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  overflow: hidden;
+}
+
+.seg {
+  background: transparent;
+  border: none;
+  color: var(--iforge-muted);
+  padding: 3px 8px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.seg.active {
+  background: var(--iforge-accent);
+  color: var(--iforge-bg);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chip {
+  background: var(--iforge-card);
+  border: 1px solid var(--iforge-border);
+  border-radius: 999px;
+  color: var(--iforge-text);
+  cursor: pointer;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.chip.active {
+  border-color: var(--iforge-accent);
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0 6px;
+  font-size: 12px;
+  border: 1px solid var(--iforge-border);
+}
+
+.badge.ok {
+  color: var(--iforge-ok);
+}
+
+.badge.error {
+  color: var(--iforge-danger);
+  border-color: var(--iforge-danger);
+}
+
+.badge.muted,
+.badge.source {
+  color: var(--iforge-muted);
+}
+
+.badge.readonly {
+  margin-left: 6px;
+  color: var(--iforge-muted);
+}
+
+.muted {
+  color: var(--iforge-muted);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.pad {
+  padding: 12px;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  background: var(--iforge-card);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+.path-preview {
+  background: var(--iforge-card);
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 6px 8px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--iforge-muted);
+}
+
+/* ---- 表达式字段（5.8、7.6）---- */
+.numexpr {
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.numexpr-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.numexpr-label {
+  color: var(--iforge-muted);
+  font-size: 12px;
+}
+
+.numexpr-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.numexpr-help summary {
+  cursor: pointer;
+  color: var(--iforge-muted);
+  font-size: 12px;
+}
+
+.numexpr-fn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 4px 0;
+  padding: 0;
+  font-size: 12px;
+  color: var(--iforge-muted);
+}
+
+.numexpr-snippets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* ---- 图标 / 主题选择器（7.6）---- */
+.icon-picker,
+.theme-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.icon-picker-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+}
+
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px;
+}
+
+.icon-group-title {
+  font-size: 12px;
+  color: var(--iforge-muted);
+}
+
+.icon-group-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.icon-cell {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--iforge-radius);
+  color: var(--iforge-text);
+  cursor: pointer;
+  padding: 3px;
+}
+
+.icon-cell.active {
+  border-color: var(--iforge-accent);
+}
+
+.theme-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.theme-cell {
+  background: var(--iforge-card);
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  color: var(--iforge-text);
+  cursor: pointer;
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.theme-cell.active {
+  border-color: var(--iforge-accent);
+}
+
+.theme-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.theme-custom-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ---- 引用选择器（7.6 RefPicker）---- */
+.ref-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ref-label {
+  color: var(--iforge-muted);
+  font-size: 12px;
+}
+
+/* ---- 升级效果（PRD 升级编辑器 12、D-47）---- */
+/*
+ * 单列**上下排列**，不是并排四列。
+ *
+ * 原先是 `1fr 1fr auto auto`：两条表达式各占一列，而“效果数值 + 两条快捷模板”
+ * 那格有 `min-width: 140px` 的硬下限，四列一起挤在 `.form` 的 `max-width: 720px` 里，
+ * “效果前提 / 效果内容”各只剩一百多像素——作者反馈“显示区域过窄，编辑不便”。
+ *
+ * 改成上下排列后每个字段独占整行宽度，textarea 不再被横向挤压；
+ * 代价是高度变长，因此 `.workspace-form` 本来就是 `overflow: auto` 的滚动容器。
+ */
+.effect-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  border: 1px dashed var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 8px;
+}
+
+/* 序号 + 删除按钮那一行（原先挤在第四列，是个孤零零的小方块）。 */
+.effect-editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.effect-editor-index {
+  color: var(--iforge-muted);
+  font-size: 12px;
+}
+
+.effect-value {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.effect-value-label {
+  color: var(--iforge-muted);
+  font-size: 12px;
+}
+
+.effect-value-number {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  background: var(--iforge-card);
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 4px 8px;
+}
+
+/* ---- 页面条目网格（PRD 页面编辑器 7/8）---- */
+.entry-grid-preview {
+  display: grid;
+  gap: 6px;
+}
+
+.entry-grid-cell {
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.entry-grid-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.entry-grid-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assign-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.assign-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 4px 8px;
+}
+
+.assign-name {
+  min-width: 120px;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  padding: 6px;
+}
+
+/* ---- 预览区（7.1）---- */
+.preview-pane {
+  position: relative;
+  border-left: 1px solid var(--iforge-border);
+  display: flex;
+  flex-direction: column;
+  min-width: 48px;
+}
+
+.preview-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border-bottom: 1px solid var(--iforge-border);
+  flex-wrap: wrap;
+}
+
+.preview-controls-mid {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.preview-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 8px;
+  position: relative;
+}
+
+.preview-device {
+  border: 1px dashed var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  /* 撑满预览区：iframe 需要一个**确定的高度**才能铺开（`height: 100%` 在 auto 高度的
+     父级上会退化成 auto，于是 iframe 保持 300×150 的默认尺寸，预览区底部一大片空白）。 */
+  flex: 1;
+  min-height: 160px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* iframe 容器与 iframe 本身都要占满 `.preview-device`（9.1：设备模拟只改这里的宽度）。 */
+.preview-frame {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.preview-frame > iframe {
+  display: block;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  background: var(--iforge-bg);
+}
+
+.preview-diagnostics {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  cursor: pointer;
+}
+
+.preview-resizer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+}
+
+.preview-resizer:hover {
+  background: var(--iforge-accent);
+}
+
+/* ---- 对话框（7.1 ③）---- */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.dialog {
+  background: var(--iforge-surface);
+  border: 1px solid var(--iforge-border);
+  border-radius: var(--iforge-radius);
+  min-width: 320px;
+  max-width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--iforge-border);
+}
+
+.dialog-head h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.dialog-body {
+  padding: 12px;
+  overflow: auto;
+}
+
+.dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--iforge-border);
+}
+
+.issue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.issue-list li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  background: var(--iforge-card);
+  border: 1px solid var(--iforge-ok);
+  border-radius: var(--iforge-radius);
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 60;
+}
+
+.toast.error {
+  border-color: var(--iforge-danger);
+}
+
+.fatal {
+  padding: 24px;
+  color: var(--iforge-danger);
+}

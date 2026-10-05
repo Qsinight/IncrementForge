@@ -1,0 +1,27 @@
+{
+  "name": "@iforge/runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "游戏运行时：GameState、tick、产出、购买/批量求解、升级效果、动态条目、离线与存档（TECH_DESIGN 8）",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "bench": "vitest bench --run"
+  },
+  "dependencies": {
+    "@iforge/expr": "workspace:*",
+    "@iforge/model": "workspace:*",
+    "@iforge/num": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

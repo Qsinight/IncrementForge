@@ -1,0 +1,639 @@
+{
+  "format": "incrementforge-project",
+  "version": 1,
+  "engineVersion": "1.0.0",
+  "meta": {
+    "name": "反物质维度（增量工坊学习版）",
+    "author": "",
+    "description": "",
+    "createdAt": "2026-10-04T08:48:07.072Z",
+    "modifiedAt": "2026-10-05T06:26:13.015Z"
+  },
+  "settings": {
+    "numberFormat": "standard",
+    "tickRate": 20,
+    "maxFrameStep": 250,
+    "autosaveInterval": 30,
+    "offlineEnabled": true,
+    "offlineCap": 8
+  },
+  "resources": [
+    {
+      "kind": "resource",
+      "id": "r1",
+      "order": 1,
+      "name": "反物质",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "gem"
+      },
+      "visible": true,
+      "initial": "10",
+      "max": "1.8e308"
+    }
+  ],
+  "generators": [
+    {
+      "kind": "generator",
+      "id": "g1",
+      "order": 1,
+      "name": "第一维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "factory"
+      },
+      "visible": true,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "10",
+      "buyDelay": 50,
+      "isClicker": false,
+      "costs": [
+        {
+          "materialId": "r1",
+          "amount": "10*(1000^floor(gen.g1.bought/10))"
+        }
+      ],
+      "produces": [
+        {
+          "materialId": "r1",
+          "amount": "(2^(floor(gen.g1.bought/10)+max(up.u1.owned,0)))*(up.u2.effectValues[0]+1)"
+        }
+      ]
+    },
+    {
+      "kind": "generator",
+      "id": "g2",
+      "order": 2,
+      "name": "第二维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "factory"
+      },
+      "visible": true,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "10",
+      "buyDelay": 50,
+      "isClicker": false,
+      "costs": [
+        {
+          "materialId": "r1",
+          "amount": "100*(10000^floor(gen.g2.bought/10))"
+        }
+      ],
+      "produces": [
+        {
+          "materialId": "g1",
+          "amount": "(2^(floor(gen.g2.bought/10)+max(up.u1.owned-1,0)))*(up.u2.effectValues[1]+1)"
+        }
+      ]
+    },
+    {
+      "kind": "generator",
+      "id": "g3",
+      "order": 3,
+      "name": "第三维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "factory"
+      },
+      "visible": true,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "10",
+      "buyDelay": 50,
+      "isClicker": false,
+      "costs": [
+        {
+          "materialId": "r1",
+          "amount": "10000*(1e5^floor(gen.g3.bought/10))"
+        }
+      ],
+      "produces": [
+        {
+          "materialId": "g2",
+          "amount": "(2^(floor(gen.g3.bought/10)+max(up.u1.owned-2,0)))*(up.u2.effectValues[2]+1)"
+        }
+      ]
+    },
+    {
+      "kind": "generator",
+      "id": "g4",
+      "order": 4,
+      "name": "第四维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "factory"
+      },
+      "visible": true,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "10",
+      "buyDelay": 50,
+      "isClicker": false,
+      "costs": [
+        {
+          "materialId": "r1",
+          "amount": "1e6*(1e6^floor(gen.g4.bought/10))"
+        }
+      ],
+      "produces": [
+        {
+          "materialId": "g3",
+          "amount": "(2^(floor(gen.g4.bought/10)+max(up.u1.owned-3,0)))*(up.u2.effectValues[3]+1)"
+        }
+      ]
+    },
+    {
+      "kind": "generator",
+      "id": "g5",
+      "order": 5,
+      "name": "第五维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "factory"
+      },
+      "visible": false,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "10",
+      "buyDelay": 50,
+      "isClicker": false,
+      "costs": [
+        {
+          "materialId": "r1",
+          "amount": "1e9*(1e8^floor(gen.g5.bought/10))"
+        }
+      ],
+      "produces": [
+        {
+          "materialId": "g4",
+          "amount": "(2^(floor(gen.g5.bought/10)+max(up.u1.owned-4,0)))*(up.u2.effectValues[4]+1)"
+        }
+      ]
+    },
+    {
+      "kind": "generator",
+      "id": "g6",
+      "order": 6,
+      "name": "第六维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "factory"
+      },
+      "visible": false,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "10",
+      "buyDelay": 50,
+      "isClicker": false,
+      "costs": [
+        {
+          "materialId": "r1",
+          "amount": "1e13*(1e10^floor(gen.g6.bought/10))"
+        }
+      ],
+      "produces": [
+        {
+          "materialId": "g5",
+          "amount": "(2^(floor(gen.g6.bought/10)+max(up.u1.owned-5,0)))*(up.u2.effectValues[5]+1)"
+        }
+      ]
+    },
+    {
+      "kind": "generator",
+      "id": "g7",
+      "order": 7,
+      "name": "第七维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "factory"
+      },
+      "visible": false,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "10",
+      "buyDelay": 50,
+      "isClicker": false,
+      "costs": [
+        {
+          "materialId": "r1",
+          "amount": "1e18*(1e12^floor(gen.g7.bought/10))"
+        }
+      ],
+      "produces": [
+        {
+          "materialId": "g6",
+          "amount": "(2^(floor(gen.g7.bought/10)+max(up.u1.owned-6,0)))*(up.u2.effectValues[6]+1)"
+        }
+      ]
+    },
+    {
+      "kind": "generator",
+      "id": "g8",
+      "order": 8,
+      "name": "第八维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "factory"
+      },
+      "visible": false,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "10",
+      "buyDelay": 50,
+      "isClicker": false,
+      "costs": [
+        {
+          "materialId": "r1",
+          "amount": "1e24*(1e15^floor(gen.g8.bought/10))"
+        }
+      ],
+      "produces": [
+        {
+          "materialId": "g7",
+          "amount": "(2^(floor(gen.g8.bought/10)+max(up.u1.owned-7,0)))*(up.u2.effectValues[7]+1)"
+        }
+      ]
+    }
+  ],
+  "upgrades": [
+    {
+      "kind": "upgrade",
+      "id": "u1",
+      "order": 1,
+      "name": "维度提升",
+      "description": "解锁下一维度，并给予前面维度 *2 倍率",
+      "icon": {
+        "kind": "builtin",
+        "value": "star"
+      },
+      "visible": true,
+      "initial": "0",
+      "max": "Infinity",
+      "disabled": false,
+      "buyAmount": "1",
+      "buyDelay": 1,
+      "perSecond": false,
+      "costs": [],
+      "conditions": [
+        "gen.g4.owned>=20"
+      ],
+      "effects": [
+        {
+          "condition": "up.u1.bought==1",
+          "action": "set(\"up.u1.conditions[0]\",\"gen.g5.owned>=20\")"
+        },
+        {
+          "condition": "up.u1.bought==2",
+          "action": "set(\"up.u1.conditions[0]\",\"gen.g6.owned>=20\")"
+        },
+        {
+          "condition": "up.u1.bought==3",
+          "action": "set(\"up.u1.conditions[0]\",\"gen.g7.owned>=20\")"
+        },
+        {
+          "condition": "up.u1.bought==4",
+          "action": "set(\"up.u1.conditions[0]\",\"gen.g8.owned>=20+15*(up.u1.bought-3)\")"
+        },
+        {
+          "condition": "up.u1.bought==1",
+          "action": "gen.g5.visible=true"
+        },
+        {
+          "condition": "up.u1.bought==2",
+          "action": "gen.g6.visible=true"
+        },
+        {
+          "condition": "up.u1.bought==3",
+          "action": "gen.g7.visible=true"
+        },
+        {
+          "condition": "up.u1.bought==4",
+          "action": "gen.g8.visible=true"
+        }
+      ]
+    },
+    {
+      "kind": "upgrade",
+      "id": "u2",
+      "order": 2,
+      "name": "购买维度",
+      "description": "从零开始：购买第一维度",
+      "icon": {
+        "kind": "builtin",
+        "value": "star"
+      },
+      "visible": true,
+      "initial": "0",
+      "max": "8",
+      "disabled": false,
+      "buyAmount": "1",
+      "buyDelay": 1,
+      "perSecond": false,
+      "costs": [],
+      "conditions": [
+        "(up.u2.bought==0&&gen.g1.bought>=1)||(up.u2.bought==1&&gen.g2.bought>=1)||(up.u2.bought==2&&gen.g3.bought>=1)||(up.u2.bought==3&&gen.g4.bought>=1)||(up.u2.bought==4&&gen.g5.bought>=1)||(up.u2.bought==5&&gen.g6.bought>=1)||(up.u2.bought==6&&gen.g7.bought>=1)||(up.u2.bought==7&&gen.g8.bought>=1)"
+      ],
+      "effects": [
+        {
+          "condition": "up.u2.bought==8",
+          "action": "effValue += 0.5"
+        },
+        {
+          "condition": "up.u2.bought==8",
+          "action": "effValue += 0.5"
+        },
+        {
+          "condition": "up.u2.bought==8",
+          "action": "effValue += 0.5"
+        },
+        {
+          "condition": "up.u2.bought==8",
+          "action": "effValue += 0.5"
+        },
+        {
+          "condition": "up.u2.bought==8",
+          "action": "effValue += 0.5"
+        },
+        {
+          "condition": "up.u2.bought==8",
+          "action": "effValue += 0.5"
+        },
+        {
+          "condition": "up.u2.bought==8",
+          "action": "effValue += 0.5"
+        },
+        {
+          "condition": "up.u2.bought==8",
+          "action": "effValue += 0.5"
+        },
+        {
+          "condition": "up.u2.bought==1",
+          "action": "up.u2.description=\"100反物质也不少：购买第二维度\""
+        },
+        {
+          "condition": "up.u2.bought==2",
+          "action": "up.u2.description=\"半衰期3实锤：购买第三维度\""
+        },
+        {
+          "condition": "up.u2.bought==3",
+          "action": "up.u2.description=\"求生之路四维版：购买第四维度\""
+        },
+        {
+          "condition": "up.u2.bought==4",
+          "action": "up.u2.description=\"第五维反物质重拳：购买第五维度\""
+        },
+        {
+          "condition": "up.u2.bought==5",
+          "action": "up.u2.description=\"经费不够做到第九维：购买第六维度\""
+        },
+        {
+          "condition": "up.u2.bought==6",
+          "action": "up.u2.description=\"这真不是靠运气：购买第七维度\""
+        },
+        {
+          "condition": "up.u2.bought==7",
+          "action": "up.u2.description=\"通往无限的九十度：购买第八维度\""
+        },
+        {
+          "condition": "up.u2.bought==8",
+          "action": "up.u2.description=\"购买八大维度，所有维度倍率 *1.5\""
+        }
+      ]
+    },
+    {
+      "kind": "upgrade",
+      "id": "u3",
+      "order": 3,
+      "name": "重置维度",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "star"
+      },
+      "visible": true,
+      "initial": "0",
+      "max": "1",
+      "disabled": false,
+      "buyAmount": "-1",
+      "buyDelay": 1,
+      "perSecond": false,
+      "costs": [],
+      "conditions": [
+        "up.u1.bought > up.u3.effectValues[19]"
+      ],
+      "effects": [
+        {
+          "condition": "true",
+          "action": "res.r1.owned=res.r1.initial"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g1.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g2.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g3.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g4.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g5.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g6.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g7.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g8.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g1.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g2.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g3.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g4.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g5.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g6.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g7.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "gen.g8.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "up.u3.owned=0"
+        },
+        {
+          "condition": "true",
+          "action": "up.u3.bought=0"
+        },
+        {
+          "condition": "true",
+          "action": "effValue = up.u1.bought"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "kind": "page",
+      "id": "p1",
+      "order": 1,
+      "name": "主页面",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "grid"
+      },
+      "visible": true,
+      "disabled": false,
+      "theme": {
+        "kind": "builtin",
+        "value": "page-dark"
+      },
+      "columns": 2,
+      "entries": [
+        {
+          "id": "r1",
+          "order": 1
+        },
+        {
+          "id": "g1",
+          "order": 2
+        },
+        {
+          "id": "g2",
+          "order": 3
+        },
+        {
+          "id": "g3",
+          "order": 4
+        },
+        {
+          "id": "g4",
+          "order": 5
+        },
+        {
+          "id": "g5",
+          "order": 6
+        },
+        {
+          "id": "g6",
+          "order": 7
+        },
+        {
+          "id": "g7",
+          "order": 8
+        },
+        {
+          "id": "g8",
+          "order": 9
+        },
+        {
+          "id": "u1",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "kind": "page",
+      "id": "p2",
+      "order": 2,
+      "name": "成就",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "grid"
+      },
+      "visible": true,
+      "disabled": false,
+      "theme": {
+        "kind": "builtin",
+        "value": "page-dark"
+      },
+      "columns": 1,
+      "entries": [
+        {
+          "id": "u2",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "kind": "page",
+      "id": "p3",
+      "order": 3,
+      "name": "其它",
+      "description": "",
+      "icon": {
+        "kind": "builtin",
+        "value": "grid"
+      },
+      "visible": true,
+      "disabled": false,
+      "theme": {
+        "kind": "builtin",
+        "value": "page-dark"
+      },
+      "columns": 1,
+      "entries": [
+        {
+          "id": "u3",
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "assets": {}
+}

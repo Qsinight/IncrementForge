@@ -1,0 +1,21 @@
+{
+  "name": "@iforge/i18n",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "国际化：t() + LocaleRegistry + zh-CN 文案（TECH_DESIGN 7.8、15；PRD 补充 9）",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

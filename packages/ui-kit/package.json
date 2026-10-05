@@ -1,0 +1,25 @@
+{
+  "name": "@iforge/ui-kit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "主题令牌、主题/图标注册表与资产安全过滤（TECH_DESIGN 7.8、13、17.4）",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@iforge/model": "workspace:*",
+    "@iforge/num": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

@@ -1,0 +1,70 @@
+# 部署编辑器到 GitHub Pages（免费：Pages 对公开仓库免费，Actions 分钟数对公开仓库也免费）。
+#
+# 首次使用需要在仓库设置里打开一次：Settings -> Pages -> Build and deployment ->
+# Source 选 “GitHub Actions”（否则这个 workflow 第一次跑会在 deploy 步失败）。
+#
+# 产物只有 `apps/editor/dist` 三个文件（index.html + assets/*.js|css），
+# 因为编辑器是纯前端：没有后端、没有 API，存档走浏览器 IndexedDB。
+name: Deploy editor to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Pages 部署需要这两条：写 Pages 产物、以及换取 OIDC 令牌。
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 新 push 直接接管上一轮未完成的部署，避免排队发布过期版本。
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm/action-setup 会读根 package.json 的 packageManager 字段（锁 pnpm@10.13.1），
+      # 因此**不要**在这里写 `version`，也不要改成 `npm i -g pnpm`。
+      # 顺序也重要：setup-node 的 pnpm 缓存要能读到已装好的 pnpm，所以 pnpm 在前。
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 站点挂在 /<repo>/ 子路径下，让编辑器产物带上对应 base，否则首页白屏 + 资源 404。
+      - name: Resolve Pages base path
+        id: pages
+        uses: actions/configure-pages@v5
+
+      # 只构建编辑器，不走根目录的 `pnpm build`：它第一步的
+      # `pnpm -r --filter "./packages/*" run build` 会输出
+      # “None of the selected packages has a "build" script”（packages/* 全都只有
+      # typecheck/test），能跑完但纯属噪音。packages/* 以源码形式被编辑器 alias 引用，
+      # 不需要先构建。
+      - name: Build editor
+        run: pnpm --filter @iforge/editor run build
+        env:
+          IFORGE_BASE: ${{ steps.pages.outputs.base_path }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/editor/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

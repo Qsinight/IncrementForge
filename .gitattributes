@@ -1,0 +1,19 @@
+# 仓库内统一存 LF：CI 跑在 ubuntu-latest，贡献者可能来自 Windows，
+# 不锁定的话各人 checkout 出的工作区换行符不同，diff 会出现整文件噪声。
+* text=auto eol=lf
+
+# 二进制文件不做换行符转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+
+# 锁文件与 CI 配置强制 LF
+pnpm-lock.yaml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf

@@ -1,0 +1,36 @@
+# 依赖安装
+node_modules/
+.pnpm-store/
+
+# 构建产物
+dist/
+build/
+*.tsbuildinfo
+
+# 测试与工具缓存
+coverage/
+.vitest/
+packages/*/node_modules/.cache/
+apps/*/node_modules/.cache/
+test-results/
+playwright-report/
+
+# E2E 产物（详见 e2e/.gitignore）
+e2e/.artifacts/
+
+# 环境变量与本地密钥（公开仓库不要提交任何 .env）
+.env
+.env.*
+!.env.example
+
+# 日志
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# 编辑器本地文件
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

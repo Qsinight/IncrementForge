@@ -1,0 +1,44 @@
+{
+  "name": "@iforge/editor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "编辑器外壳：四区布局、四类工作区表单、撤销重做、项目生命周期（TECH_DESIGN 7）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@iforge/build": "workspace:*",
+    "@iforge/expr": "workspace:*",
+    "@iforge/i18n": "workspace:*",
+    "@iforge/model": "workspace:*",
+    "@iforge/num": "workspace:*",
+    "@iforge/persist": "workspace:*",
+    "@iforge/runtime": "workspace:*",
+    "@iforge/ui-kit": "workspace:*",
+    "immer": "^10.1.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/node": "^22.10.0",
+    "@vitejs/plugin-react": "^4.4.0",
+    "esbuild": "^0.25.12",
+    "fake-indexeddb": "^6.0.1",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.3.5",
+    "vitest": "^3.0.5"
+  }
+}

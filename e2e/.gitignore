@@ -1,0 +1,7 @@
+# E2E 产物与报告（不进版本库）
+.artifacts/
+test-results/
+playwright-report/
+
+# 单文件打包的临时产物（`pack:example`）
+*.html

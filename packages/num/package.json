@@ -1,0 +1,26 @@
+{
+  "name": "@iforge/num",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "数值层：break_eternity Decimal 封装、饱和语义、显示格式化（TECH_DESIGN 4）",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "bench": "vitest bench --run"
+  },
+  "dependencies": {
+    "break_eternity.js": "^2.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

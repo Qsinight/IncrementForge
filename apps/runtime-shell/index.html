@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>IncrementForge 预览沙箱（调试）</title>
+    <style>
+      /*
+       * 与 17.3 的打包模板同一份基础样式：底色走 `--iforge-page-bg` + 兜底值，
+       * 这样这个调试页在浅色页面主题下也不会露出一圈写死的暗色边。
+       */
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--iforge-page-bg, #14161c);
+        color: var(--iforge-page-text, #e8eaf0);
+      }
+    </style>
+  </head>
+  <body class="iforge-game">
+    <!--
+      直挂模式的数据注入点（17.3 的 `window.__IFORGE_BOOTSTRAP__`）。
+      留空则 `main.ts` 回落到示例项目（17.2）。编辑器预览**不用**这条路径——
+      它走 `srcdoc` + `postMessage`（9.1/9.2），见 `src/iframe-entry.ts`。
+    -->
+    <script>
+      // window.__IFORGE_BOOTSTRAP__ = { project: /* ProjectFile */ }
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

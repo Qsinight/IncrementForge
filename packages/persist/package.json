@@ -1,0 +1,29 @@
+{
+  "name": "@iforge/persist",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "IndexedDB 仓储：projects / assets / saves / meta + 导入导出（TECH_DESIGN 10）",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@iforge/model": "workspace:*",
+    "@iforge/num": "workspace:*",
+    "@iforge/runtime": "workspace:*",
+    "@iforge/ui-kit": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.0.1",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

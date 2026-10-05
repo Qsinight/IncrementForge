@@ -1,0 +1,40 @@
+{
+  "name": "incrementforge",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @iforge/editor run dev",
+    "build": "pnpm -r --filter \"./packages/*\" run build; pnpm --filter @iforge/editor run build",
+    "typecheck": "pnpm -r --filter \"./packages/*\" --filter \"./apps/*\" run typecheck",
+    "lint": "eslint . && prettier --check \"**/*.{ts,tsx,js,json,mjs}\" --ignore-path .prettierignore",
+    "lint:fix": "eslint . --fix && prettier --write \"**/*.{ts,tsx,js,json,mjs}\" --ignore-path .prettierignore",
+    "docs:check": "vitest run --config tools/vitest.config.ts",
+    "docs:gen": "node packages/build/scripts/docs-gen.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "bench": "vitest bench --run",
+    "bench:ci": "vitest bench --run --reporter=basic",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "pack:example": "node packages/build/scripts/write-example-project.mjs e2e/.artifacts/example.json",
+    "verify": "pnpm run typecheck && pnpm run test && pnpm run docs:check && pnpm run lint",
+    "verify:e2e": "pnpm run build && pnpm run e2e"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.63.0",
+    "@vitest/coverage-v8": "3.2.7",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "prettier": "^3.9.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^3.0.5"
+  }
+}

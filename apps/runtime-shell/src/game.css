@@ -1,0 +1,698 @@
+/*
+ * 游戏视图样式（TECH_DESIGN 7.8 的 CSS 变量主题令牌、8.11 的布局、9.1 的设备断点、D-41）。
+ *
+ * ## 为什么 CSS 是 `view-model` 之外唯一允许“算一次”的地方
+ *
+ * 8.11 末条要求“不在 UI 层另算一套逻辑”，那指的是**数据**：判定、格式化都必须来自
+ * `buildViewModel()`。布局除外——网格列数、断点列数、卡片排列是纯 CSS 的活儿，
+ * 这里用 `repeat(var(--page-columns), minmax(0, 1fr))` + 媒体查询表达（D-41 的
+ * `< 640 / < 1024 / ≥ 1024` 断点），React 侧不再参与。
+ *
+ * ## 三个命名空间，各管一段（17.4）
+ *
+ * | 命名空间 | 消费者 | 值来自 |
+ * | --- | --- | --- |
+ * | `--iforge-page-*` | **壳层**（`body` 底色、顶部标题栏、仪表盘、底部导航、内置设置页）与 `.game-page` | `AppView` 按**当前页面**的 `PageDef.theme` 内联到 `.game-root` |
+ * | `--iforge-entry-*` | `.entry-card` 卡片内的一切 | `PageView` 按 `entries[i].theme`（缺省跟随页面）内联到 `.entry-grid` |
+ * | `--iforge-*` | 编辑器自身 | 只在编辑器页面生效；游戏壳层**不用**它 |
+ *
+ * ## 为什么壳层跟页面主题而不是自己的主题
+ *
+ * PRD 页面编辑器 6 的“页面主题”表达的是**这一页长什么样**，而顶部标题栏、仪表盘与
+ * 底部导航栏是这条页面不可分割的一部分：它们若停在编辑器那套默认暗色，作者把页面换成
+ * `page-light` 就会看到“上面一栏深色、下面一片浅色”的割裂界面（正是本文件之前的状态——
+ * 令牌只内联到 `.game-page`，壳层读的是永不被改写的 `--iforge-*`，于是**改页面主题对
+ * 壳层零影响**）。壳层令牌因此统一读 `--iforge-page-*`，值由 `AppView` 施加到
+ * `.game-root`（`template.ts` 的注释也是这么写的：“由 `AppView` 施加到根节点”）。
+ *
+ * `.iforge-game`（body）上仍然给出一份 `--iforge-page-*` 的缺省值：自定义主题缺变量时
+ * 逐键回退（D-13），且内置设置页（没有 `PageDef.theme`）需要这份缺省。
+ *
+ * `--iforge-*` 的那组声明保留在下面：**编辑器主题预置**与首次进入内置设置页时的兜底，
+ * 游戏壳层的任何一条规则都不再读它。
+ */
+
+.iforge-game {
+  --iforge-bg: #14161c;
+  --iforge-surface: #1e212a;
+  --iforge-text: #e8eaf0;
+  --iforge-muted: #9aa1b1;
+  --iforge-border: #2c3140;
+  --iforge-accent: #4c8dff;
+  --iforge-danger: #e5484d;
+  --iforge-ok: #3ecf8e;
+  --iforge-warning: #f5a524;
+
+  --iforge-page-bg: #14161c;
+  --iforge-page-surface: #1e212a;
+  --iforge-page-text: #e8eaf0;
+  --iforge-page-muted: #9aa1b1;
+  --iforge-page-border: #2c3140;
+  --iforge-page-accent: #4c8dff;
+  --iforge-page-danger: #e5484d;
+  --iforge-page-ok: #3ecf8e;
+  --iforge-page-warning: #f5a524;
+
+  --iforge-entry-bg: #232733;
+  --iforge-entry-surface: #2a2f3d;
+  --iforge-entry-text: #e8eaf0;
+  --iforge-entry-muted: #9aa1b1;
+  --iforge-entry-border: #39404f;
+  --iforge-entry-accent: #4c8dff;
+  --iforge-entry-danger: #e5484d;
+  --iforge-entry-ok: #3ecf8e;
+  --iforge-entry-warning: #f5a524;
+
+  box-sizing: border-box;
+  /* `min-height: 100vh` 而不是 `height: 100%`：`.iforge-game` 挂在 `body` 上，
+     而 `html` 的高度是 auto，百分比高度会退化成 auto，于是 body 塌成 0 高、
+     背景色画不满视口（预览区下半截发白）。`100vh` 在 iframe 里就是 iframe 的视口高。
+
+     第二条 `min-height: 100dvh` 是覆盖：移动端浏览器地址栏收起/展开会让 `vh`
+     **大于**可见视口，body 因此比屏幕高、壳层底部被推到屏幕外。`dvh` 是
+     “动态视口高”（= 当前可见高度），支持它的浏览器自动取更准的那一份。 */
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--iforge-page-bg);
+  color: var(--iforge-page-text);
+  font:
+    14px/1.5 system-ui,
+    -apple-system,
+    'Segoe UI',
+    'Microsoft YaHei',
+    sans-serif;
+}
+
+.iforge-game *,
+.iforge-game *::before,
+.iforge-game *::after {
+  box-sizing: inherit;
+}
+
+.iforge-game .game-root {
+  display: flex;
+  flex-direction: column;
+  /* 同上：用视口高而不是百分比，底部导航的 `position: sticky; bottom: 0` 才有参照。
+     `height`（而不是只有 `min-height`）是**必需**的：主区 `.game-main` 靠它拿到确定高度，
+     `.entry-grid-scroll` 的 `max-height: 100%` 才有参照物。
+     只给 `min-height` 时 flex 容器按内容撑高，子元素的 `max-height: 100%` 退化为 none，
+     虚拟列表于是**没有滚动条**——只渲染首屏 6 条，其余卡片永远滚不到（12 性能预算失效）。
+
+     第二条 `height: 100dvh` 是覆盖：移动端地址栏收起时 `100vh` 大于可见视口，
+     壳层比屏幕高、底部导航被顶到屏幕之外（打包产物在手机上尤其明显）。
+     同时**不再**配 `min-height: 100vh`——它会在 `dvh` 更小时把盒子重新撑回溢出。
+
+     壳层自身的底色：页面主题的令牌由 `AppView` 内联到根节点（见 `theme.ts`），
+     这里显式画出 `bg`，于是 8px 内边距那一圈也是页面底色而不是 body 的默认色。 */
+  height: 100vh;
+  height: 100dvh;
+  gap: 8px;
+  padding: 8px;
+  background: var(--iforge-page-bg);
+}
+
+.iforge-game .game-title {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 4px;
+  color: var(--iforge-page-text);
+}
+
+.iforge-game .game-dashboard {
+  /* 自身是一个 flex 列容器，`min-height: 0` 允许它被压到内容高度以下——
+     flex 子项的**自动最小尺寸**默认是内容高度，不写这一条时空间一紧
+     仪表盘就把主区 `.game-main` 挤成 0px，页面上的条目一张都看不到
+     （实测 49 个资源 + 离线提示条时就是这个结果）。 */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--iforge-page-border);
+  border-radius: 8px;
+  background: var(--iforge-page-surface);
+  color: var(--iforge-page-text);
+  padding: 8px;
+}
+
+/* 展开/收回的标题行（8.9 的仪表盘新增交互）。收回时只剩这一行。 */
+.iforge-game .dashboard-head {
+  display: flex;
+  align-items: center;
+}
+
+.iforge-game .dashboard-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.iforge-game .dashboard-caret {
+  color: var(--iforge-page-muted);
+}
+
+/* 仪表盘正文：展开态封顶并在内部滚动。
+   `max-height: 40vh` 是“仪表盘最多占四成屏”的上限，剩下六成留给条目区；
+   不封顶时资源一多，主区 `.game-main` 被 flex 压到 0，页面上的条目**完全**不可达。 */
+.iforge-game .dashboard-body {
+  /* 上限 30vh：仪表盘把**当前页之外**的全部资源都列出来，资源一多就能吃掉整屏
+     （实测 49 个资源时不封顶的话它自己就有 623px 高，主区被压到 0px、条目一张都够不着）。
+     30vh 与离线提示条的 25vh 相加仍给条目区留出四成以上。 */
+  max-height: 30vh;
+  min-height: 0;
+  overflow-y: auto;
+  /* 滚动条不改变布局宽度，否则仪表盘内容会随滚动条出现/消失跳动。 */
+  scrollbar-gutter: stable;
+}
+
+.iforge-game .game-dashboard[data-collapsed='true'] .dashboard-body {
+  /* 收回态不留空白：`hidden` 已经不渲染内容，这里只保证不残留 max-height 的盒子。 */
+  display: none;
+}
+
+.iforge-game .dashboard-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.iforge-game .dashboard-resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.iforge-game .dashboard-resource {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.iforge-game .dashboard-name {
+  color: var(--iforge-page-muted);
+}
+
+.iforge-game .dashboard-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.iforge-game .dashboard-rate {
+  font-size: 12px;
+  color: var(--iforge-page-ok);
+}
+
+.iforge-game .dashboard-rate[data-rate-sign='negative'] {
+  color: var(--iforge-page-danger);
+}
+
+.iforge-game .dashboard-next {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.iforge-game .dashboard-next-label {
+  color: var(--iforge-page-muted);
+  font-size: 12px;
+}
+
+.iforge-game .dashboard-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+/* 主区 = 页面区域的**滚动容器**（8.11 的卡片列表、D-56）。
+   `flex: 1; min-height: 0` 让它吸收多余高度而不是把页面撑长，`.entry-grid-scroll`
+   的 `max-height: 100%` 因此才有确定参照（D-56 的虚拟滚动需要一条真的能滚的轴）。
+
+   `overflow-y: auto` 是**非虚拟化路径唯一的滚动轴**，不能写成 `hidden`：
+   未超过 `VIRTUALIZE_THRESHOLD` 时条目网格是 `.game-page` 的直接子节点、**没有**自己的
+   滚动容器（8.11 明确“未超阈值时渲染全部且不套滚动容器”，D-56），而 `.game-page` 又是
+   `height: 100%` 的定高盒子。`overflow: hidden` 会把溢出的卡片直接**裁掉且无处可滚**：
+   条目一多就只能看到首屏，下面几张永远够不着（症状与“虚拟滚动没有滚动条”同源，
+   但发生在 ≤40 张卡片的普通页面上）。
+
+   写成 `auto` 不会与虚拟化路径产生双滚动条：虚拟化时 `.entry-grid-scroll` 自己吃掉
+   全部可用高度，`.game-page` 的内容恰好等于主区高度，外层不会溢出。
+   `overflow-x: hidden` 只是防止横向溢出（`overflow-y: auto` 会把 `x` 计算成 `auto`）。 */
+.iforge-game .game-main {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* 滚动条不改变布局宽度，否则卡片列宽会随滚动条出现/消失跳动。 */
+  scrollbar-gutter: stable;
+}
+
+.iforge-game .page-description {
+  margin: 0 0 8px;
+  color: var(--iforge-page-muted);
+}
+
+/* 页面主题（PRD 页面编辑器 6、PRD 页面编辑器 8 的条目主题）：令牌由 `AppView` 把
+   **页面**主题内联到 `.game-root`（壳层与页面同色），`PageView` 把**条目**主题内联到
+   网格容器，缺项回落到根令牌（D-13）。
+
+   没有这一段时 `--iforge-page-*` 是**一组没有消费者的变量**：页面主题在编辑器里改了、
+   项目文件里也存了，但游戏里看不出任何变化（只有变量定义，没有任何规则读它）。 */
+.iforge-game .game-page {
+  background: var(--iforge-page-bg);
+  color: var(--iforge-page-text);
+  /* 页面本身要撑满主区并成为 flex 列容器，`.entry-grid-scroll` 的 `max-height: 100%`
+     才有一确定高度的父级可参照（D-56）。没有这一步，`max-height: 100%` 退化为 none，
+     虚拟列表没有滚动条、只渲染首屏。
+     注意 `height: 100%`（而不是 `min-height`）在这里是**必需**的：主区是滚动容器，
+     内容超出时由主区滚动，而定高的页面节自身不滚动，溢出照样交给主区处理——
+     非虚拟化路径（无 `.entry-grid-scroll`）正是靠这一点才滚得动。 */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.iforge-game .game-page .page-description {
+  color: var(--iforge-page-muted);
+}
+
+/* 网格列数由 `PageView` 的行内 `gridTemplateColumns` 给出（min(page.columns, 断点列数)，D-41）。 */
+.iforge-game .entry-grid {
+  display: grid;
+  gap: 8px;
+}
+
+/* 虚拟化容器（12 性能预算「卡片列表虚拟化（> 40 条目启用）」）。
+   高度取视口可用空间；占位靠 `.entry-grid` 的上下 `padding`（`PageView` 的行内样式）。 */
+.iforge-game .entry-grid-scroll {
+  max-height: 100%;
+  overflow-y: auto;
+  /* 滚动容器内的滚动条不改变布局宽度，否则卡片列宽会随滚动条出现/消失跳动。 */
+  scrollbar-gutter: stable;
+  /* 作为 flex 子项还要能收缩，否则它按内容高度撑开、滚动条消失（与 `max-height` 一起给）。 */
+  flex: 1;
+  min-height: 0;
+}
+
+.iforge-game .entry-advice {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--iforge-entry-warning, var(--iforge-page-warning));
+  background: color-mix(in srgb, var(--iforge-entry-warning, var(--iforge-page-warning)) 12%, transparent);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--iforge-entry-text);
+}
+
+/* 卡片内的一切读 `--iforge-entry-*`（PRD 页面编辑器 8 的条目主题）。
+   回退链是 `--iforge-entry-* -> --iforge-page-*`：**卡片永远跟随所在页面**，
+   即使作者给条目配了缺变量的自定义主题（D-13 逐键回退）也不会退回编辑器那套默认色。 */
+.iforge-game .entry-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--iforge-entry-border, var(--iforge-page-border));
+  border-radius: 8px;
+  background: var(--iforge-entry-surface, var(--iforge-page-surface));
+  color: var(--iforge-entry-text, var(--iforge-page-text));
+  padding: 10px;
+}
+
+/* 8.11「卡片显隐」：禁用保留卡片但置灰、隐藏按钮；资源卡片不置灰（8.4 的两条容易搞反的规则）。 */
+.iforge-game .entry-card.disabled {
+  opacity: 0.5;
+  filter: grayscale(0.6);
+}
+
+.iforge-game .entry-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.iforge-game .entry-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.iforge-game .entry-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.iforge-game .entry-desc {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--iforge-entry-muted, var(--iforge-page-muted));
+}
+
+.iforge-game .entry-amount,
+.iforge-game .entry-count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.iforge-game .entry-count-sep {
+  margin: 0 2px;
+  color: var(--iforge-entry-muted, var(--iforge-page-muted));
+  font-weight: 400;
+}
+
+.iforge-game .entry-output,
+.iforge-game .entry-costs,
+.iforge-game .entry-conditions,
+.iforge-game .entry-effects {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+  font-size: 12px;
+}
+
+.iforge-game .entry-output {
+  display: flex;
+  gap: 6px;
+  color: var(--iforge-entry-muted, var(--iforge-page-muted));
+}
+
+.iforge-game .entry-output-value {
+  color: var(--iforge-entry-text, var(--iforge-page-text));
+  font-variant-numeric: tabular-nums;
+}
+
+.iforge-game .cost,
+.iforge-game .condition,
+.iforge-game .effect {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.iforge-game .cost-amount {
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
+
+.iforge-game .condition.false {
+  color: var(--iforge-entry-danger, var(--iforge-page-danger));
+}
+
+.iforge-game .condition.true {
+  color: var(--iforge-entry-muted, var(--iforge-page-muted));
+}
+
+.iforge-game .effect code {
+  overflow-wrap: anywhere;
+  color: var(--iforge-entry-muted, var(--iforge-page-muted));
+}
+
+.iforge-game .effect-value {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.iforge-game .entry-action {
+  align-self: stretch;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--iforge-entry-accent, var(--iforge-page-accent));
+  background: var(--iforge-entry-accent, var(--iforge-page-accent));
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.iforge-game .entry-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iforge-game .icon-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+/* 角标只出现在壳层（仪表盘页脚、离线提示条、设置页），因此读页面命名空间。 */
+.iforge-game .badge {
+  border: 1px solid var(--iforge-page-border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
+  color: var(--iforge-page-muted);
+}
+
+.iforge-game .badge.error {
+  border-color: var(--iforge-page-danger);
+  color: var(--iforge-page-danger);
+}
+
+.iforge-game .badge.warn {
+  border-color: var(--iforge-page-warning);
+  color: var(--iforge-page-warning);
+}
+
+.iforge-game .badge.override {
+  border-color: var(--iforge-page-warning);
+  color: var(--iforge-page-warning);
+}
+
+/* `.muted` 两处都用：卡片里的“空页面”占位与壳层的次要说明文字。 */
+.iforge-game .muted {
+  color: var(--iforge-entry-muted, var(--iforge-page-muted));
+}
+
+.iforge-game .small {
+  font-size: 11px;
+}
+
+/* 离线提示条是**通知**而不是内容：它与仪表盘一样必须能让出高度给主区，
+   否则一条通知就能把页面条目挤没（同 `.game-dashboard` 的 `min-height: 0`）。
+
+   `flex-shrink` 上限 2：仪表盘与提示条都按内容抢高度时，让**通知**先被压缩得更多
+   （仪表盘封顶 30vh、它封顶 25vh，两条上限之和仍给主区留出四成以上）。 */
+.iforge-game .offline-notice {
+  flex: 0 2 auto;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid var(--iforge-page-warning);
+  border-radius: 8px;
+  background: var(--iforge-page-surface);
+  padding: 8px;
+}
+
+.iforge-game .offline-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.iforge-game .offline-gains {
+  list-style: none;
+  margin: 4px 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  /* 增量列表按**资源数**线性增长，49 个资源就是 49 项——不封顶时一条通知
+     能吃掉整屏、把页面条目挤成 0px（同 `.dashboard-body` 的封顶理由）。
+     `max-height` + 内部滚动：收益条目仍然可查，页面却始终有可玩的高度。 */
+  max-height: 18vh;
+  overflow-y: auto;
+}
+
+.iforge-game .offline-warn {
+  margin: 4px 0;
+  color: var(--iforge-page-warning);
+  font-size: 12px;
+}
+
+.iforge-game .game-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.iforge-game .settings-info {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.iforge-game .settings-info > div {
+  display: flex;
+  gap: 8px;
+}
+
+.iforge-game .settings-info dt {
+  color: var(--iforge-page-muted);
+  min-width: 96px;
+}
+
+.iforge-game .settings-info dd {
+  margin: 0;
+}
+
+.iforge-game .settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.iforge-game .settings-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.iforge-game .settings-row.overridden {
+  border-color: var(--iforge-page-warning);
+}
+
+.iforge-game .settings-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 内置设置页（8.10）不在 `.game-page` 里，因此它也是壳层的一部分，读页面命名空间。 */
+.iforge-game .input {
+  border: 1px solid var(--iforge-page-border);
+  border-radius: 6px;
+  background: var(--iforge-page-bg);
+  color: inherit;
+  font: inherit;
+  padding: 2px 6px;
+  max-width: 140px;
+}
+
+.iforge-game .settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.iforge-game .btn {
+  border: 1px solid var(--iforge-page-border);
+  border-radius: 6px;
+  background: var(--iforge-page-surface);
+  color: inherit;
+  font: inherit;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.iforge-game .btn.primary {
+  border-color: var(--iforge-page-accent);
+  background: var(--iforge-page-accent);
+  color: #fff;
+}
+
+.iforge-game .btn.danger {
+  border-color: var(--iforge-page-danger);
+  color: var(--iforge-page-danger);
+}
+
+/* 底部导航栏（PRD 预览区 8）：壳层的一部分，跟随**当前页面**的主题。 */
+.iforge-game .bottom-nav {
+  display: flex;
+  gap: 4px;
+  border-top: 1px solid var(--iforge-page-border);
+  padding-top: 6px;
+  position: sticky;
+  bottom: 0;
+  background: var(--iforge-page-bg);
+}
+
+.iforge-game .nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--iforge-page-muted);
+  font: inherit;
+  font-size: 11px;
+  padding: 4px 2px;
+  cursor: pointer;
+}
+
+.iforge-game .nav-item.current {
+  color: var(--iforge-page-accent);
+  border-color: currentColor;
+}
+
+.iforge-game .nav-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.iforge-game .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* D-41 的设备断点（9.1 表：`phone` 单列 / `tablet` 两列 / `auto` 按容器断点）。
+   断点只改列数的**上限**，页面自定义的 `columns` 仍由 `PageView` 的行内样式决定。 */
+@media (max-width: 640px) {
+  .iforge-game .entry-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .iforge-game .nav-item {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .iforge-game .entry-grid {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
+  }
+}
+
+/* 触屏设备模拟（9.1「`pointer: coarse`」）：按钮留出触控热区。 */
+@media (pointer: coarse) {
+  .iforge-game .entry-action {
+    min-height: 40px;
+  }
+
+  .iforge-game .nav-item {
+    min-height: 44px;
+  }
+}

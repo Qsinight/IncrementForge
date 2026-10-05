@@ -1,0 +1,33 @@
+# Prettier 的检查范围（14.3「CI：lint（ESLint + Prettier）」）。
+#
+# 与 `.gitignore` 分开维护：Prettier 会检查**未被 git 跟踪也未被忽略**的文件，
+# 包括 `test-results/`（Playwright 的临时产物）这类本地生成目录。
+# 在 CI 里这些目录本来就不存在，但本地跑 `pnpm lint` 时必须排除，否则每次跑完 E2E
+# 都会冒出一堆与代码无关的格式告警。
+
+# 依赖与构建产物
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# 测试与工具缓存
+.vitest/
+packages/*/node_modules/.cache/
+apps/*/node_modules/.cache/
+test-results/
+playwright-report/
+
+# E2E 产物（单文件 HTML 体积大，不入库）
+e2e/.artifacts/
+
+# `docs/` 下的项目文件是**夹具数据**（作者导出的原始 JSON），不是源码：
+# 用例直接读它做回归（见 packages/runtime/test/dimension-project.test.ts），
+# 顺手格式化会改掉“作者当时到底导出了什么”这份证据。
+docs/*.json
+
+# 版本库元信息
+.git/
+.idea/
+.vscode/
